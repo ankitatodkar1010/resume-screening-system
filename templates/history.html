@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resume History</title>
+</head>
+<body>
+
+    <h1>Resume History</h1>
+
+    <table border="1">
+        <tr>
+            <th>Resume Name</th>
+            <th>Score</th>
+        </tr>
+
+        {% for resume in history %}
+        <tr>
+            <td>{{ resume[0] }}</td>
+            <td>{{ resume[1] }}%</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+</body>
+</html>

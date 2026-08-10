@@ -1,0 +1,1371 @@
+{% extends "base.html" %}
+
+{% block title %}
+Recruiter Dashboard | ResumeAI
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+```
+<!-- PAGE HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h3 class="fw-bold mb-1">
+            Recruiter Dashboard
+        </h3>
+
+        <p class="text-muted mb-0">
+            Screen and rank candidates against your job requirements.
+        </p>
+    </div>
+
+    {% if candidates %}
+    <span class="badge bg-primary-subtle text-primary border px-3 py-2">
+        {{ candidates|length }} Candidate{% if candidates|length != 1 %}s{% endif %}
+    </span>
+    {% endif %}
+
+</div>
+
+
+<!-- CREATE SCREENING -->
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="mb-4">
+            <h5 class="fw-bold mb-1">
+                Create Candidate Screening
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Add a job description and upload candidate resumes to automatically rank applicants.
+            </p>
+        </div>
+
+
+        <form
+            method="POST"
+            action="/recruiter"
+            enctype="multipart/form-data"
+        >
+
+            <!-- JOB DESCRIPTION -->
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Job Description
+                </label>
+
+                <textarea
+                    name="job_description"
+                    class="form-control"
+                    rows="7"
+                    placeholder="Paste the complete job description here..."
+                    required
+                ></textarea>
+
+                <div class="form-text">
+                    Include responsibilities, required skills, technologies and qualifications.
+                </div>
+
+            </div>
+
+
+            <!-- RESUMES -->
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Candidate Resumes
+                </label>
+
+                <input
+                    type="file"
+                    name="resumes"
+                    class="form-control"
+                    accept=".pdf"
+                    multiple
+                    required
+                >
+
+                <div class="form-text">
+                    Upload multiple PDF resumes to compare candidates.
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary px-4"
+            >
+                Start Screening
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+{% if job_description %}
+
+<!-- JOB DESCRIPTION -->
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+                <h5 class="fw-bold mb-1">
+                    Job Description
+                </h5>
+
+                <p class="text-muted small mb-0">
+                    Requirements used for candidate screening.
+                </p>
+            </div>
+
+            {% if required_skills %}
+
+            <span class="badge bg-light text-dark border px-3 py-2">
+                {{ required_skills|length }} Required Skills
+            </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <div
+            class="border rounded p-3 bg-light"
+            style="
+                max-height:180px;
+                overflow:hidden;
+                white-space:pre-wrap;
+                line-height:1.6;
+                font-size:14px;
+            "
+        >{{ job_description }}</div>
+
+
+        <button
+            type="button"
+            class="btn btn-sm btn-outline-primary mt-3"
+            onclick="openJobDescription()"
+        >
+            View Full Job Description
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- JOB DESCRIPTION MODAL -->
+
+<div
+    id="jobDescriptionModal"
+    class="custom-modal"
+    onclick="closeJobDescriptionOutside(event)"
+>
+
+    <div
+        class="custom-modal-content"
+        onclick="event.stopPropagation()"
+    >
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+                <h5 class="fw-bold mb-1">
+                    Job Description
+                </h5>
+
+                <small class="text-muted">
+                    Complete screening requirements
+                </small>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-sm btn-light border"
+                onclick="closeJobDescription()"
+            >
+                Close
+            </button>
+
+        </div>
+
+
+        <div
+            class="border rounded p-4 bg-light"
+            style="
+                white-space:pre-wrap;
+                line-height:1.7;
+                font-size:15px;
+            "
+        >{{ job_description }}</div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+{% if candidates %}
+
+<!-- CANDIDATE RANKING -->
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+                <h5 class="fw-bold mb-1">
+                    Candidate Ranking
+                </h5>
+
+                <p class="text-muted small mb-0">
+                    Candidates ranked by their job-description match score.
+                </p>
+            </div>
+
+            <span class="badge bg-light text-dark border px-3 py-2">
+                {{ candidates|length }} Candidates
+            </span>
+
+        </div>
+
+
+        <!-- SEARCH AND FILTER -->
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-8">
+
+                <div class="input-group">
+
+                    <span class="input-group-text bg-white">
+                        🔍
+                    </span>
+
+                    <input
+                        type="text"
+                        id="candidateSearch"
+                        class="form-control"
+                        placeholder="Search candidate..."
+                        onkeyup="filterCandidates()"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <select
+                    id="statusFilter"
+                    class="form-select"
+                    onchange="filterCandidates()"
+                >
+
+                    <option value="all">
+                        All Status
+                    </option>
+
+                    <option value="Shortlisted">
+                        Shortlisted
+                    </option>
+
+                    <option value="Review">
+                        Review
+                    </option>
+
+                    <option value="Rejected">
+                        Rejected
+                    </option>
+
+                    <option value="Not Decided">
+                        Not Decided
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- TABLE -->
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th class="text-muted small">
+                            RANK
+                        </th>
+
+                        <th class="text-muted small">
+                            CANDIDATE
+                        </th>
+
+                        <th class="text-muted small">
+                            ATS SCORE
+                        </th>
+
+                        <th class="text-muted small">
+                            MATCH
+                        </th>
+
+                        <th class="text-muted small">
+                            DECISION
+                        </th>
+
+                        <th class="text-muted small text-end">
+                            ACTION
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for candidate in candidates %}
+
+                    <tr
+                        class="candidate-row"
+                        data-name="{{ candidate.name|lower }}"
+                        data-status="{{ candidate.decision or 'Not Decided' }}"
+                    >
+
+                        <!-- RANK -->
+
+                        <td>
+
+                            <span class="fw-bold text-secondary">
+                                #{{ candidate.rank or loop.index }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- CANDIDATE -->
+
+                        <td>
+
+                            <div class="d-flex align-items-center">
+
+                                <div
+                                    class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center me-3"
+                                    style="
+                                        width:42px;
+                                        height:42px;
+                                        font-weight:700;
+                                    "
+                                >
+                                    {{ candidate.name[0]|upper }}
+                                </div>
+
+                                <div>
+
+                                    <div class="fw-semibold">
+                                        {{ candidate.name }}
+                                    </div>
+
+                                    <small class="text-muted">
+                                        PDF Resume
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- ATS SCORE -->
+
+                        <td>
+
+                            {% if candidate.score >= 80 %}
+
+                            <span class="fw-bold text-success">
+                                {{ candidate.score }}%
+                            </span>
+
+                            {% elif candidate.score >= 50 %}
+
+                            <span class="fw-bold text-warning">
+                                {{ candidate.score }}%
+                            </span>
+
+                            {% else %}
+
+                            <span class="fw-bold text-danger">
+                                {{ candidate.score }}%
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- MATCH STATUS -->
+
+                        <td>
+
+                            {% if candidate.score >= 80 %}
+
+                            <span class="badge bg-success-subtle text-success">
+                                Strong Match
+                            </span>
+
+                            {% elif candidate.score >= 65 %}
+
+                            <span class="badge bg-primary-subtle text-primary">
+                                Good Match
+                            </span>
+
+                            {% elif candidate.score >= 50 %}
+
+                            <span class="badge bg-warning-subtle text-warning-emphasis">
+                                Moderate Match
+                            </span>
+
+                            {% else %}
+
+                            <span class="badge bg-danger-subtle text-danger">
+                                Low Match
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- DECISION -->
+
+                        <td>
+
+                            {% if candidate.decision == "Shortlisted" %}
+
+                            <span class="small text-success fw-semibold">
+                                ● Shortlisted
+                            </span>
+
+                            {% elif candidate.decision == "Review" %}
+
+                            <span class="small text-warning fw-semibold">
+                                ● Review
+                            </span>
+
+                            {% elif candidate.decision == "Rejected" %}
+
+                            <span class="small text-danger fw-semibold">
+                                ● Rejected
+                            </span>
+
+                            {% else %}
+
+                            <span class="small text-muted">
+                                ● Not Decided
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- ACTION -->
+
+                        <td class="text-end">
+
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-primary"
+                                onclick="openCandidate('{{ loop.index }}')"
+                            >
+                                View
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- NO RESULTS -->
+
+        <div
+            id="noCandidatesMessage"
+            class="text-center text-muted py-5"
+            style="display:none;"
+        >
+
+            <div class="fs-2 mb-2">
+                🔎
+            </div>
+
+            <div class="fw-semibold">
+                No candidates found
+            </div>
+
+            <small>
+                Try changing your search or filter.
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- CANDIDATE MODALS -->
+
+{% for candidate in candidates %}
+
+<div
+    id="candidateModal{{ loop.index }}"
+    class="custom-modal"
+    onclick="closeCandidateOutside(event, '{{ loop.index }}')"
+>
+
+    <div
+        class="custom-modal-content candidate-modal-content"
+        onclick="event.stopPropagation()"
+    >
+
+        <!-- HEADER -->
+
+        <div class="d-flex justify-content-between align-items-start mb-4">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    {{ candidate.name }}
+                </h5>
+
+                <small class="text-muted">
+                    Candidate Screening Details
+                </small>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="btn btn-sm btn-light border"
+                onclick="closeCandidate('{{ loop.index }}')"
+            >
+                Close
+            </button>
+
+        </div>
+
+
+        <!-- SCORE -->
+
+        <div class="border rounded p-4 mb-4 bg-light">
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                <span class="fw-semibold">
+                    ATS Match Score
+                </span>
+
+                <span class="fw-bold fs-5">
+                    {{ candidate.score }}%
+                </span>
+
+            </div>
+
+
+            <div
+                class="progress"
+                style="height:9px;"
+            >
+
+                <div
+                    class="progress-bar
+                    {% if candidate.score >= 80 %}
+                    bg-success
+                    {% elif candidate.score >= 50 %}
+                    bg-warning
+                    {% else %}
+                    bg-danger
+                    {% endif %}"
+                    style="width:{{ candidate.score }}%;"
+                ></div>
+
+            </div>
+
+
+            <div class="mt-3">
+
+                {% if candidate.score >= 80 %}
+
+                <span class="badge bg-success-subtle text-success">
+                    Strong Match
+                </span>
+
+                {% elif candidate.score >= 65 %}
+
+                <span class="badge bg-primary-subtle text-primary">
+                    Good Match
+                </span>
+
+                {% elif candidate.score >= 50 %}
+
+                <span class="badge bg-warning-subtle text-warning-emphasis">
+                    Moderate Match
+                </span>
+
+                {% else %}
+
+                <span class="badge bg-danger-subtle text-danger">
+                    Low Match
+                </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- SCORE BREAKDOWN -->
+
+        <h6 class="fw-bold mb-3">
+            Score Breakdown
+        </h6>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-6 col-md-3">
+
+                <div class="border rounded p-3 text-center">
+
+                    <small class="text-muted d-block">
+                        Skills
+                    </small>
+
+                    <strong>
+                        {{ candidate.skills_score }}%
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-6 col-md-3">
+
+                <div class="border rounded p-3 text-center">
+
+                    <small class="text-muted d-block">
+                        Projects
+                    </small>
+
+                    <strong>
+                        {{ candidate.projects_score }}%
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-6 col-md-3">
+
+                <div class="border rounded p-3 text-center">
+
+                    <small class="text-muted d-block">
+                        Experience
+                    </small>
+
+                    <strong>
+                        {{ candidate.experience_score }}%
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-6 col-md-3">
+
+                <div class="border rounded p-3 text-center">
+
+                    <small class="text-muted d-block">
+                        Education
+                    </small>
+
+                    <strong>
+                        {{ candidate.education_score }}%
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- MATCHED SKILLS -->
+
+        <div class="mb-4">
+
+            <h6 class="fw-bold mb-3">
+                Matched Skills
+            </h6>
+
+
+            {% if candidate.matched_skills %}
+
+                {% for skill in candidate.matched_skills %}
+
+                <span class="badge bg-success-subtle text-success border me-1 mb-2 px-2 py-2">
+                    {{ skill }}
+                </span>
+
+                {% endfor %}
+
+            {% else %}
+
+            <p class="text-muted small mb-0">
+                No matching skills detected.
+            </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- MISSING SKILLS -->
+
+        <div class="mb-4">
+
+            <h6 class="fw-bold mb-3">
+                Missing Skills
+            </h6>
+
+
+            {% if candidate.missing_skills %}
+
+                {% for skill in candidate.missing_skills %}
+
+                <span class="badge bg-light text-secondary border me-1 mb-2 px-2 py-2">
+
+                    {% if skill is mapping %}
+
+                        {{ skill.get("name", "Unknown Skill") }}
+
+                    {% else %}
+
+                        {{ skill }}
+
+                    {% endif %}
+
+                </span>
+
+                {% endfor %}
+
+            {% else %}
+
+            <p class="text-muted small mb-0">
+                No major missing skills detected.
+            </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- DECISION -->
+
+        <div class="border-top pt-4">
+
+            <h6 class="fw-bold mb-2">
+                Recruiter Decision
+            </h6>
+
+            <p class="text-muted small">
+                Select the appropriate action for this candidate.
+            </p>
+
+
+            <div class="d-flex gap-2 flex-wrap">
+
+                <!-- SHORTLIST -->
+
+                <form
+                    method="POST"
+                    action="/recruiter/decision"
+                >
+
+                    <input
+                        type="hidden"
+                        name="resume_name"
+                        value="{{ candidate.name }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="score"
+                        value="{{ candidate.score }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="decision"
+                        value="Shortlisted"
+                    >
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-success"
+                    >
+                        Shortlist
+                    </button>
+
+                </form>
+
+
+                <!-- REVIEW -->
+
+                <form
+                    method="POST"
+                    action="/recruiter/decision"
+                >
+
+                    <input
+                        type="hidden"
+                        name="resume_name"
+                        value="{{ candidate.name }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="score"
+                        value="{{ candidate.score }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="decision"
+                        value="Review"
+                    >
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-warning"
+                    >
+                        Review
+                    </button>
+
+                </form>
+
+
+                <!-- REJECT -->
+
+                <form
+                    method="POST"
+                    action="/recruiter/decision"
+                >
+
+                    <input
+                        type="hidden"
+                        name="resume_name"
+                        value="{{ candidate.name }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="score"
+                        value="{{ candidate.score }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="decision"
+                        value="Rejected"
+                    >
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-danger"
+                    >
+                        Reject
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- CURRENT DECISION -->
+
+            <div class="mt-3">
+
+                <span class="text-muted small">
+                    Current decision:
+                </span>
+
+
+                {% if candidate.decision == "Shortlisted" %}
+
+                <span class="badge bg-success ms-1">
+                    Shortlisted
+                </span>
+
+
+                {% elif candidate.decision == "Review" %}
+
+                <span class="badge bg-warning text-dark ms-1">
+                    Review
+                </span>
+
+
+                {% elif candidate.decision == "Rejected" %}
+
+                <span class="badge bg-danger ms-1">
+                    Rejected
+                </span>
+
+
+                {% else %}
+
+                <span class="badge bg-secondary ms-1">
+                    Not Decided
+                </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+```
+
+</div>
+
+<!-- ================================================= -->
+
+<!-- STYLES -->
+
+<!-- ================================================= -->
+
+<style>
+
+.custom-modal {
+
+    display: none;
+
+    position: fixed;
+
+    z-index: 1055;
+
+    inset: 0;
+
+    background: rgba(15, 23, 42, 0.55);
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+}
+
+
+.custom-modal.show {
+
+    display: flex;
+
+}
+
+
+.custom-modal-content {
+
+    background: #ffffff;
+
+    width: 100%;
+
+    max-width: 850px;
+
+    max-height: 88vh;
+
+    overflow-y: auto;
+
+    border-radius: 14px;
+
+    padding: 30px;
+
+    box-shadow: 0 20px 60px rgba(0,0,0,0.20);
+
+}
+
+
+.candidate-modal-content {
+
+    max-width: 760px;
+
+}
+
+
+body.modal-open {
+
+    overflow: hidden;
+
+}
+
+
+.table > :not(caption) > * > * {
+
+    padding-top: 15px;
+
+    padding-bottom: 15px;
+
+}
+
+
+.table tbody tr {
+
+    transition: background 0.15s ease;
+
+}
+
+
+.table tbody tr:hover {
+
+    background: #f8fafc;
+
+}
+
+
+@media (max-width: 768px) {
+
+    .custom-modal {
+
+        padding: 10px;
+
+    }
+
+
+    .custom-modal-content {
+
+        padding: 20px;
+
+        max-height: 92vh;
+
+    }
+
+
+    .table {
+
+        min-width: 800px;
+
+    }
+
+}
+
+</style>
+
+<!-- ================================================= -->
+
+<!-- JAVASCRIPT -->
+
+<!-- ================================================= -->
+
+<script>
+
+function openJobDescription() {
+
+    const modal =
+        document.getElementById(
+            "jobDescriptionModal"
+        );
+
+    if (modal) {
+
+        modal.classList.add("show");
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+    }
+
+}
+
+
+function closeJobDescription() {
+
+    const modal =
+        document.getElementById(
+            "jobDescriptionModal"
+        );
+
+    if (modal) {
+
+        modal.classList.remove("show");
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+}
+
+
+function closeJobDescriptionOutside(event) {
+
+    if (
+        event.target.id ===
+        "jobDescriptionModal"
+    ) {
+
+        closeJobDescription();
+
+    }
+
+}
+
+
+function openCandidate(index) {
+
+    const modal =
+        document.getElementById(
+            "candidateModal" + index
+        );
+
+    if (modal) {
+
+        modal.classList.add("show");
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+    }
+
+}
+
+
+function closeCandidate(index) {
+
+    const modal =
+        document.getElementById(
+            "candidateModal" + index
+        );
+
+    if (modal) {
+
+        modal.classList.remove("show");
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+}
+
+
+function closeCandidateOutside(
+    event,
+    index
+) {
+
+    if (
+        event.target.id ===
+        "candidateModal" + index
+    ) {
+
+        closeCandidate(index);
+
+    }
+
+}
+
+
+function filterCandidates() {
+
+    const searchInput =
+        document.getElementById(
+            "candidateSearch"
+        );
+
+    const statusFilter =
+        document.getElementById(
+            "statusFilter"
+        );
+
+    const rows =
+        document.querySelectorAll(
+            ".candidate-row"
+        );
+
+    const searchText =
+        searchInput.value
+        .toLowerCase()
+        .trim();
+
+    const selectedStatus =
+        statusFilter.value;
+
+    let visibleCount = 0;
+
+
+    rows.forEach(function(row) {
+
+        const candidateName =
+            row.dataset.name || "";
+
+        const candidateStatus =
+            row.dataset.status ||
+            "Not Decided";
+
+
+        const matchesSearch =
+            candidateName.includes(
+                searchText
+            );
+
+
+        const matchesStatus =
+            selectedStatus === "all" ||
+            candidateStatus ===
+            selectedStatus;
+
+
+        if (
+            matchesSearch &&
+            matchesStatus
+        ) {
+
+            row.style.display = "";
+
+            visibleCount++;
+
+        } else {
+
+            row.style.display = "none";
+
+        }
+
+    });
+
+
+    const noMessage =
+        document.getElementById(
+            "noCandidatesMessage"
+        );
+
+
+    if (noMessage) {
+
+        if (visibleCount === 0) {
+
+            noMessage.style.display =
+                "block";
+
+        } else {
+
+            noMessage.style.display =
+                "none";
+
+        }
+
+    }
+
+}
+
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key !== "Escape") {
+
+            return;
+
+        }
+
+
+        const jobModal =
+            document.getElementById(
+                "jobDescriptionModal"
+            );
+
+
+        if (
+            jobModal &&
+            jobModal.classList.contains(
+                "show"
+            )
+        ) {
+
+            closeJobDescription();
+
+        }
+
+
+        document
+            .querySelectorAll(
+                ".custom-modal.show"
+            )
+            .forEach(function(modal) {
+
+                modal.classList.remove(
+                    "show"
+                );
+
+            });
+
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

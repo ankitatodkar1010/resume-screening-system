@@ -1,0 +1,185 @@
+/* ---------- RESET ---------- */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+/* ---------- BODY ---------- */
+body{
+    background:#f4f7fc;
+    color:#333;
+}
+
+/* ---------- MAIN LAYOUT ---------- */
+.layout{
+    display:flex;
+    min-height:100vh;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{
+    width:250px;
+    background:linear-gradient(180deg,#5b21b6,#4338ca);
+    color:white;
+    padding:30px 20px;
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:40px;
+    font-size:28px;
+}
+
+.sidebar nav{
+    display:flex;
+    flex-direction:column;
+}
+
+.sidebar nav a{
+    color:white;
+    text-decoration:none;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:10px;
+    transition:.3s;
+}
+
+.sidebar nav a:hover{
+    background:rgba(255,255,255,.2);
+}
+
+/* ---------- CONTENT ---------- */
+.content{
+    flex:1;
+    padding:30px;
+}
+
+/* ---------- TOPBAR ---------- */
+.topbar{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:25px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+/* ---------- MODERN UI ---------- */
+
+body{
+    background:linear-gradient(135deg,#4facfe,#00c6fb);
+    min-height:100vh;
+}
+
+.container{
+    margin-top:30px;
+}
+
+.card{
+    border:none;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.12);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 20px 40px rgba(0,0,0,0.18);
+}
+
+.btn{
+    border-radius:12px;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.btn-primary{
+    background:#2563eb;
+    border:none;
+}
+
+.btn-primary:hover{
+    background:#1d4ed8;
+    transform:scale(1.05);
+}
+
+.table{
+    background:white;
+    border-radius:15px;
+    overflow:hidden;
+}
+
+.table thead{
+    background:#2563eb;
+    color:white;
+}
+
+.table tbody tr:hover{
+    background:#eef6ff;
+}
+
+.badge{
+    border-radius:20px;
+    padding:8px 15px;
+    font-size:14px;
+}
+
+h2,h3,h4,h5{
+    font-weight:700;
+}
+
+.dashboard-card{
+    border-radius:20px;
+    padding:25px;
+    text-align:center;
+}
+
+.dashboard-card h1{
+    font-size:42px;
+    font-weight:bold;
+}
+
+.dashboard-card p{
+    color:#666;
+}
+
+.shadow{
+    box-shadow:0 15px 35px rgba(0,0,0,0.15)!important;
+}
+
+.card-title{
+    font-weight:bold;
+}
+
+.card-text{
+    color:#555;
+}
+
+.navbar{
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,.12);
+}
+
+.navbar a{
+    font-weight:600;
+}
+
+pre{
+    white-space:pre-wrap;
+    word-wrap:break-word;
+    font-family:inherit;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+.recommendation-box {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.recommendation-box div {
+    margin: 0 !important;
+    padding: 2px 0 !important;
+    line-height: 1.4 !important;
+}

@@ -1,0 +1,632 @@
+{% extends "base.html" %}
+
+{% block title %}
+ATS Analysis | ResumeAI
+{% endblock %}
+
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h2 class="fw-bold text-white">
+        ATS Resume Analysis
+    </h2>
+
+    <p class="text-white-50 mb-0">
+        AI-powered analysis of your resume against the target job.
+    </p>
+
+</div>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <h4 class="fw-bold mb-1">
+                    {{ resume_name }}
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Resume Analysis Report
+                </p>
+
+            </div>
+
+
+            <a
+                href="/download-report"
+                class="btn btn-primary btn-lg"
+            >
+                📥 Download ATS Report
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ATS SCORE
+===================================================== -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-5 text-center">
+
+        <p class="text-muted mb-2">
+            OVERALL ATS MATCH
+        </p>
+
+        <h1 class="display-2 fw-bold text-success">
+            {{ score }}%
+        </h1>
+
+        {% if score >= 80 %}
+
+            <span class="badge bg-success fs-6">
+                Excellent Match
+            </span>
+
+        {% elif score >= 50 %}
+
+            <span class="badge bg-warning text-dark fs-6">
+                Good Match
+            </span>
+
+        {% else %}
+
+            <span class="badge bg-danger fs-6">
+                Low Match
+            </span>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SCORE BREAKDOWN
+===================================================== -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-4">
+            Score Breakdown
+        </h4>
+
+        <div class="row g-3">
+
+
+            <div class="col-md-4">
+
+                <div class="p-3 bg-light rounded">
+
+                    <small class="text-muted">
+                        Skills Match
+                    </small>
+
+                    <h4 class="fw-bold">
+                        {{ skills_score }}%
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="p-3 bg-light rounded">
+
+                    <small class="text-muted">
+                        Projects
+                    </small>
+
+                    <h4 class="fw-bold">
+                        {{ projects_score }}%
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="p-3 bg-light rounded">
+
+                    <small class="text-muted">
+                        Experience
+                    </small>
+
+                    <h4 class="fw-bold">
+                        {{ experience_score }}%
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="p-3 bg-light rounded">
+
+                    <small class="text-muted">
+                        Education
+                    </small>
+
+                    <h4 class="fw-bold">
+                        {{ education_score }}%
+                    </h4>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="p-3 bg-light rounded">
+
+                    <small class="text-muted">
+                        NLP Similarity
+                    </small>
+
+                    <h4 class="fw-bold">
+                        {{ nlp_score }}%
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MATCHED + MISSING SKILLS
+===================================================== -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- Matched -->
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <h4 class="fw-bold text-success">
+                    ✓ Matched Skills
+                </h4>
+
+                <div class="mt-3">
+
+                    {% if matched_skills %}
+
+                        {% for skill in matched_skills %}
+
+                            <span
+                                class="badge bg-success-subtle text-success border border-success me-2 mb-2 p-2"
+                            >
+                                {{ skill }}
+                            </span>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="text-muted">
+                            No matching skills detected.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Missing -->
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <h4 class="fw-bold text-danger">
+                    ! Missing Skills
+                </h4>
+
+                <div class="mt-3">
+
+                    {% if missing_skills %}
+
+                        {% for skill in missing_skills %}
+
+                            <span
+                                class="badge bg-danger-subtle text-danger border border-danger me-2 mb-2 p-2"
+                            >
+
+                                {% if skill is mapping %}
+
+                                    {{ skill.name }}
+
+                                {% else %}
+
+                                    {{ skill }}
+
+                                {% endif %}
+
+                            </span>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="text-muted">
+                            No major missing skills detected.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     AI RECOMMENDATIONS
+===================================================== -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <h4 class="fw-bold">
+            🤖 AI Recommendations
+        </h4>
+
+        <div class="mt-3">
+
+            {% for item in recommendation.split('\n') %}
+
+                {% if item.strip() %}
+
+                    <div class="p-3 mb-2 bg-light rounded">
+
+                        {{ item }}
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     AI RESUME ANALYSIS
+===================================================== -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-4">
+            🧠 AI Resume Analysis
+        </h4>
+
+
+        {% if resume_analysis %}
+
+
+            {% for section, data in resume_analysis.items() %}
+
+                <div class="mb-4">
+
+                    <h5 class="fw-bold">
+                        {{ section|capitalize }}
+                    </h5>
+
+
+                    {% if data.strength %}
+
+                        <p class="mb-2">
+
+                            <strong>
+                                Strength:
+                            </strong>
+
+                            {{ data.strength }}
+
+                        </p>
+
+                    {% endif %}
+
+
+                    {% if data.improvement %}
+
+                        <p class="mb-0">
+
+                            <strong>
+                                Improvement:
+                            </strong>
+
+                            {{ data.improvement }}
+
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <p class="text-muted">
+                AI resume analysis is not available.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     INTERVIEW QUESTIONS
+===================================================== -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-4">
+            🎯 Interview Questions
+        </h4>
+
+
+        {% if interview_questions %}
+
+
+            {% for item in interview_questions %}
+
+                <div class="border rounded p-3 mb-3">
+
+                    <div class="d-flex justify-content-between">
+
+                        <h5 class="fw-bold">
+                            {{ loop.index }}.
+                            {{ item.question }}
+                        </h5>
+
+                        <span class="badge bg-primary">
+                            {{ item.difficulty }}
+                        </span>
+
+                    </div>
+
+                    <p class="text-muted mb-1">
+
+                        <strong>
+                            Topic:
+                        </strong>
+
+                        {{ item.topic }}
+
+                    </p>
+
+                    <p class="mb-0">
+
+                        <strong>
+                            Why:
+                        </strong>
+
+                        {{ item.reason }}
+
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <p class="text-muted">
+                Interview questions are not available.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     COVER LETTER
+===================================================== -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-3">
+            ✉️ AI Cover Letter
+        </h4>
+
+        {% if cover_letter %}
+
+            <div
+                class="p-4 bg-light rounded"
+                style="white-space: pre-line;"
+            >
+                {{ cover_letter }}
+            </div>
+
+        {% else %}
+
+            <p class="text-muted">
+                Cover letter is not available.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     RECRUITER ASSESSMENT
+===================================================== -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-4">
+            👔 AI Recruiter Assessment
+        </h4>
+
+
+        {% if recruiter_decision %}
+
+            <p>
+
+                <strong>
+                    Status:
+                </strong>
+
+                {{ recruiter_decision.status }}
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Confidence:
+                </strong>
+
+                {{ recruiter_decision.confidence }}%
+
+            </p>
+
+
+            {% if recruiter_decision.reasons %}
+
+                <h6 class="fw-bold mt-3">
+                    Reasons
+                </h6>
+
+                <ul>
+
+                    {% for reason in recruiter_decision.reasons %}
+
+                        <li>
+                            {{ reason }}
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            {% endif %}
+
+
+            {% if recruiter_decision.next_round %}
+
+                <p>
+
+                    <strong>
+                        Next Round:
+                    </strong>
+
+                    {{ recruiter_decision.next_round }}
+
+                </p>
+
+            {% endif %}
+
+
+        {% else %}
+
+            <p class="text-muted">
+                Recruiter assessment is not available.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ACTIONS
+===================================================== -->
+
+<div class="text-center mb-5">
+
+    <a
+        href="/download-report"
+        class="btn btn-primary btn-lg me-2"
+    >
+        📥 Download Professional ATS Report
+    </a>
+
+    <a
+        href="/dashboard"
+        class="btn btn-outline-light btn-lg"
+    >
+        Back to Dashboard
+    </a>
+
+</div>
+
+{% endblock %}

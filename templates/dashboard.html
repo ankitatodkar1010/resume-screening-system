@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard | ResumeAI
+{% endblock %}
+
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h2 class="fw-bold text-white">
+        👋 Welcome, {{ name }}
+    </h2>
+
+    <p class="text-white-50">
+        Manage and analyze your resumes with AI.
+    </p>
+
+</div>
+
+
+<!-- =====================================================
+     STATISTICS
+===================================================== -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- Highest ATS -->
+
+    <div class="col-md-3">
+
+        <div class="card dashboard-card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted mb-2">
+                            Highest ATS
+                        </p>
+
+                        <h2 class="fw-bold text-success mb-1">
+                            {{ highest_score }}%
+                        </h2>
+
+                        <small class="text-muted">
+                            Best Resume Score
+                        </small>
+
+                    </div>
+
+                    <div class="fs-2">
+                        🏆
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Total Analyses -->
+
+    <div class="col-md-3">
+
+        <div class="card dashboard-card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted mb-2">
+                            Total Analyses
+                        </p>
+
+                        <h2 class="fw-bold text-primary mb-1">
+                            {{ total_resumes }}
+                        </h2>
+
+                        <small class="text-muted">
+                            Resumes Analyzed
+                        </small>
+
+                    </div>
+
+                    <div class="fs-2">
+                        📄
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- AI -->
+
+    <div class="col-md-3">
+
+        <div class="card dashboard-card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted mb-2">
+                            AI Analysis
+                        </p>
+
+                        <h4 class="fw-bold text-success mb-1">
+                            Active
+                        </h4>
+
+                        <small class="text-muted">
+                            Groq AI Connected
+                        </small>
+
+                    </div>
+
+                    <div class="fs-2">
+                        🤖
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- NLP -->
+
+    <div class="col-md-3">
+
+        <div class="card dashboard-card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted mb-2">
+                            NLP Engine
+                        </p>
+
+                        <h4 class="fw-bold text-info mb-1">
+                            Ready
+                        </h4>
+
+                        <small class="text-muted">
+                            TF-IDF Enabled
+                        </small>
+
+                    </div>
+
+                    <div class="fs-2">
+                        📈
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MAIN FEATURES
+===================================================== -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- Resume Analysis -->
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-5 text-center">
+
+                <div class="d-flex justify-content-between">
+
+                    <span class="badge text-bg-primary">
+                        Candidate
+                    </span>
+
+                </div>
+
+                <h3 class="fw-bold mt-3">
+                    📄 Resume Analysis
+                </h3>
+
+                <p class="text-muted">
+
+                    Analyze one resume against
+                    a target job description.
+
+                </p>
+
+                <p class="text-muted">
+
+                    Get ATS score, matched skills,
+                    missing skills, AI recommendations,
+                    interview questions and
+                    personalized career guidance.
+
+                </p>
+
+                <!-- ONLY ONE ANALYZE BUTTON -->
+
+                <a
+                    href="/"
+                    class="btn btn-primary btn-lg mt-3"
+                >
+                    Analyze Resume
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Recruiter Screening -->
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-5 text-center">
+
+                <div class="d-flex justify-content-between">
+
+                    <span class="badge text-bg-success">
+                        Recruiter
+                    </span>
+
+                </div>
+
+                <h3 class="fw-bold mt-3">
+                    👥 Recruiter Screening
+                </h3>
+
+                <p class="text-muted">
+
+                    Screen and rank multiple candidates.
+
+                </p>
+
+                <p class="text-muted">
+
+                    Upload a job description and
+                    multiple resumes to compare
+                    candidates, rank ATS scores
+                    and shortlist, review or reject
+                    candidates.
+
+                </p>
+
+                <a
+                    href="/recruiter"
+                    class="btn btn-outline-primary btn-lg mt-3"
+                >
+                    Open Recruiter Screening
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     RECENT HISTORY
+===================================================== -->
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h4 class="fw-bold mb-0">
+                📋 Recent Resume History
+            </h4>
+
+            <a
+                href="/history"
+                class="btn btn-outline-secondary btn-sm"
+            >
+                View All
+            </a>
+
+        </div>
+
+
+        {% if recent_resumes %}
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Resume
+                        </th>
+
+                        <th>
+                            ATS Score
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for resume in recent_resumes %}
+
+                    <tr>
+
+                        <td class="fw-medium">
+                            {{ resume[0] }}
+                        </td>
+
+
+                        <td>
+
+                            {% if resume[1] >= 80 %}
+
+                                <span class="badge bg-success">
+                                    {{ resume[1] }}%
+                                </span>
+
+                            {% elif resume[1] >= 50 %}
+
+                                <span class="badge bg-warning text-dark">
+                                    {{ resume[1] }}%
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+                                    {{ resume[1] }}%
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="text-center p-4">
+
+            <h5>
+                No resumes analyzed yet.
+            </h5>
+
+            <a
+                href="/"
+                class="btn btn-primary mt-3"
+            >
+                Analyze Your First Resume
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

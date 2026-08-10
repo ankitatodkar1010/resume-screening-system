@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Screening System</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <div class="container mt-5">
+
+        <div class="card shadow-lg">
+
+            <div class="card-header bg-primary text-white text-center">
+                <h2>AI Resume Screening System</h2>
+                <p class="mb-0">Upload your resume and compare it with a Job Description</p>
+            </div>
+
+            <div class="card-body">
+
+                <form action="/analyze" method="POST" enctype="multipart/form-data">
+
+                    <!-- Resume Upload -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            Upload Resume (PDF)
+                        </label>
+
+                        <input
+                            type="file"
+                            name="resume"
+                            class="form-control"
+                            accept=".pdf"
+                            required>
+                    </div>
+
+                    <!-- Job Description -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            Paste Job Description
+                        </label>
+
+                        <textarea
+                            name="job_description"
+                            class="form-control"
+                            rows="10"
+                            placeholder="Paste the job description here..."
+                            required></textarea>
+                    </div>
+
+                    <!-- Button -->
+                    <div class="d-grid">
+                        <button
+                            type="submit"
+                            class="btn btn-success btn-lg">
+                            Analyze Resume
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
