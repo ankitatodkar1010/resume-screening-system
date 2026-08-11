@@ -274,7 +274,7 @@ For production deployment, additional security measures such as CSRF protection,
 * Advanced semantic resume matching
 * Resume version comparison
 * Recruiter analytics dashboard
-* Candidate comparison charts
+* Candidate comparison charts 
 * Job recommendation system
 * Email notifications
 * Better AI evaluation with structured scoring
