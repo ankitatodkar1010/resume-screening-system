@@ -42,6 +42,9 @@ app.secret_key = os.getenv(
     "FLASK_SECRET_KEY",
     "resume_secret_key"
 )
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 groq_api_key = os.getenv("GROQ_API_KEY")
 
