@@ -1,1 +1,8 @@
+Flask
+Werkzeug
+PyPDF2
+reportlab
+scikit-learn
+groq
+python-dotenv
 gunicorn
