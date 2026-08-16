@@ -4,6 +4,10 @@ An AI-powered resume screening and career assistance web application built with 
 
 The system analyzes resumes against a target job description, calculates an ATS-style match score, identifies matching and missing skills, and provides AI-powered career insights.
 
+## 🌐 Live Demo
+
+🔗 https://resume-screening-system-3fu2.onrender.com
+
 ## 🚀 Features
 
 ### 👤 Candidate Features
