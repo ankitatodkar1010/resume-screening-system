@@ -164,8 +164,7 @@ venv\Scripts\activate
 ### 4. Install dependencies
 
 ```bash
-pip install flask werkzeug PyPDF2 reportlab scikit-learn groq python-dotenv
-```
+pip install -r requirements.txt```
 
 ### 5. Create `.env`
 
