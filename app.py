@@ -42,7 +42,11 @@ app.secret_key = os.getenv(
     "FLASK_SECRET_KEY",
     "resume_secret_key"
 )
-app.config["SESSION_COOKIE_SECURE"] = True
+
+# IMPORTANT:
+# Keep SECURE=False when running Flask locally with http://127.0.0.1
+# Set it to True only after deploying with HTTPS.
+app.config["SESSION_COOKIE_SECURE"] = False
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
@@ -52,7 +56,6 @@ client = None
 
 if groq_api_key:
     client = Groq(api_key=groq_api_key)
-
 
 UPLOAD_FOLDER = "uploads"
 
@@ -68,7 +71,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def create_database():
 
     conn = sqlite3.connect("database.db")
-
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -262,7 +264,6 @@ def normalize_text(text):
 def skill_found(skill, text):
 
     normalized_text = normalize_text(text)
-
     normalized_skill = normalize_text(skill)
 
     if normalized_skill in normalized_text:
@@ -856,8 +857,10 @@ def analyze_resume(
 
 @app.route("/")
 def home():
-    if "user_id" in session:
+
+    if "user_email" in session:
         return redirect("/dashboard")
+
     return redirect("/login")
 
 
@@ -872,7 +875,6 @@ def home():
 def recruiter():
 
     if "user_email" not in session:
-
         return redirect("/login")
 
     if request.method == "POST":
@@ -940,9 +942,7 @@ def recruiter():
                     "decision": "Not Decided"
                 }
 
-                candidates.append(
-                    candidate
-                )
+                candidates.append(candidate)
 
             except Exception as e:
 
@@ -1015,7 +1015,6 @@ def recruiter():
             result = cursor.fetchone()
 
             if result:
-
                 candidate["decision"] = result[0]
 
         conn.close()
@@ -1066,7 +1065,6 @@ def recruiter():
 def recruiter_decision():
 
     if "user_email" not in session:
-
         return redirect("/login")
 
     resume_name = request.form.get(
@@ -1083,7 +1081,7 @@ def recruiter_decision():
             )
         )
 
-    except ValueError:
+    except (ValueError, TypeError):
 
         score = 0
 
@@ -1092,9 +1090,7 @@ def recruiter_decision():
         "Not Decided"
     )
 
-    user_email = session[
-        "user_email"
-    ]
+    user_email = session["user_email"]
 
     conn = sqlite3.connect(
         "database.db"
@@ -1141,7 +1137,6 @@ def recruiter_decision():
     for candidate in candidates:
 
         if candidate["name"] == resume_name:
-
             candidate["decision"] = decision
 
     session["recruiter_candidates"] = (
@@ -1161,7 +1156,6 @@ def recruiter_decision():
 def dashboard():
 
     if "user_email" not in session:
-
         return redirect("/login")
 
     conn = sqlite3.connect(
@@ -1182,6 +1176,11 @@ def dashboard():
     )
 
     user = cursor.fetchone()
+
+    if user is None:
+        conn.close()
+        session.clear()
+        return redirect("/login")
 
     cursor.execute(
         """
@@ -1210,7 +1209,6 @@ def dashboard():
     highest_score = cursor.fetchone()[0]
 
     if highest_score is None:
-
         highest_score = 0
 
     cursor.execute(
@@ -1261,11 +1259,16 @@ def register():
             ""
         ).strip().lower()
 
+        raw_password = request.form.get(
+            "password",
+            ""
+        )
+
+        if not name or not email or not raw_password:
+            return "All fields are required."
+
         password = generate_password_hash(
-            request.form.get(
-                "password",
-                ""
-            )
+            raw_password
         )
 
         conn = sqlite3.connect(
@@ -1406,7 +1409,6 @@ def login():
             )
 
             if highest_score is None:
-
                 highest_score = 0
 
             conn.close()
@@ -1456,10 +1458,7 @@ def history():
     )
 
     if not user_email:
-
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     conn = sqlite3.connect(
         "database.db"
@@ -1494,7 +1493,13 @@ def history():
 # =========================================================
 # ANALYZE RESUME
 # =========================================================
+@app.route("/analyze-page")
+def analyze_page():
 
+    if "user_email" not in session:
+        return redirect("/login")
+
+    return render_template("index.html")
 @app.route(
     "/analyze",
     methods=["POST"]
@@ -1502,10 +1507,7 @@ def history():
 def analyze():
 
     if "user_email" not in session:
-
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     resume = request.files.get(
         "resume"
@@ -1517,13 +1519,9 @@ def analyze():
     ).strip()
 
     if not resume or not resume.filename:
-
         return "Please upload a resume."
 
-    if not resume.filename.lower().endswith(
-        ".pdf"
-    ):
-
+    if not resume.filename.lower().endswith(".pdf"):
         return "Only PDF resumes are supported."
 
     resume_name = secure_filename(
@@ -1531,7 +1529,6 @@ def analyze():
     )
 
     if not resume_name:
-
         return "Invalid resume filename."
 
     session["resume_name"] = resume_name
@@ -1578,62 +1575,26 @@ def analyze():
         job_description
     )
 
-    required_skills = analysis[
-        "required_skills"
-    ]
-
-    matched_skills = analysis[
-        "matched_skills"
-    ]
-
-    missing_skills = analysis[
-        "missing_skills"
-    ]
-
-    score = analysis[
-        "score"
-    ]
-
-    nlp_score = analysis[
-        "nlp_score"
-    ]
-
-    skills_score = analysis[
-        "skills_score"
-    ]
-
-    projects_score = analysis[
-        "projects_score"
-    ]
-
-    experience_score = analysis[
-        "experience_score"
-    ]
-
-    education_score = analysis[
-        "education_score"
-    ]
-
-    keywords_score = analysis[
-        "keywords_score"
-    ]
-
-    recommendation = analysis[
-        "recommendation"
-    ]
+    required_skills = analysis["required_skills"]
+    matched_skills = analysis["matched_skills"]
+    missing_skills = analysis["missing_skills"]
+    score = analysis["score"]
+    nlp_score = analysis["nlp_score"]
+    skills_score = analysis["skills_score"]
+    projects_score = analysis["projects_score"]
+    experience_score = analysis["experience_score"]
+    education_score = analysis["education_score"]
+    keywords_score = analysis["keywords_score"]
+    recommendation = analysis["recommendation"]
 
     # -----------------------------------------------------
     # AI VARIABLES
     # -----------------------------------------------------
 
     resume_analysis = {}
-
     interview_questions = []
-
     cover_letter = ""
-
     recruiter_decision = {}
-
     career_roadmap = {}
 
     # -----------------------------------------------------
@@ -1774,6 +1735,7 @@ TARGET JOB DESCRIPTION:
 {job_description}
 """
                     }
+
                 ]
             )
 
@@ -1784,17 +1746,24 @@ TARGET JOB DESCRIPTION:
                 .content
             )
 
-            # Remove accidental markdown fences
+            if not ai_text:
+                raise ValueError(
+                    "Groq returned an empty response."
+                )
+
+            # -------------------------------------------------
+            # REMOVE MARKDOWN FENCES
+            # -------------------------------------------------
+
             ai_text = ai_text.strip()
 
-            if ai_text.startswith(
-                "```"
-            ):
+            if ai_text.startswith("```"):
 
                 ai_text = re.sub(
                     r"^```(?:json)?",
                     "",
-                    ai_text
+                    ai_text,
+                    flags=re.IGNORECASE
                 )
 
                 ai_text = re.sub(
@@ -1805,15 +1774,17 @@ TARGET JOB DESCRIPTION:
 
                 ai_text = ai_text.strip()
 
+            # -------------------------------------------------
+            # PARSE JSON
+            # -------------------------------------------------
+
             ai_data = json.loads(
                 ai_text
             )
 
-            ai_recommendations = (
-                ai_data.get(
-                    "recommendations",
-                    []
-                )
+            ai_recommendations = ai_data.get(
+                "recommendations",
+                []
             )
 
             if ai_recommendations:
@@ -1823,39 +1794,29 @@ TARGET JOB DESCRIPTION:
                     for item in ai_recommendations
                 )
 
-            resume_analysis = (
-                ai_data.get(
-                    "resume_analysis",
-                    {}
-                )
+            resume_analysis = ai_data.get(
+                "resume_analysis",
+                {}
             )
 
-            interview_questions = (
-                ai_data.get(
-                    "interview_questions",
-                    []
-                )
+            interview_questions = ai_data.get(
+                "interview_questions",
+                []
             )
 
-            cover_letter = (
-                ai_data.get(
-                    "cover_letter",
-                    ""
-                )
+            cover_letter = ai_data.get(
+                "cover_letter",
+                ""
             )
 
-            recruiter_decision = (
-                ai_data.get(
-                    "recruiter_decision",
-                    {}
-                )
+            recruiter_decision = ai_data.get(
+                "recruiter_decision",
+                {}
             )
 
-            career_roadmap = (
-                ai_data.get(
-                    "career_roadmap",
-                    {}
-                )
+            career_roadmap = ai_data.get(
+                "career_roadmap",
+                {}
             )
 
         except Exception as e:
@@ -1911,27 +1872,16 @@ TARGET JOB DESCRIPTION:
     # -----------------------------------------------------
 
     session["resume_name"] = resume_name
-
     session["score"] = score
-
     session["nlp_score"] = nlp_score
-
     session["matched_skills"] = matched_skills
-
     session["missing_skills"] = missing_skills
-
     session["recommendation"] = recommendation
-
     session["skills_score"] = skills_score
-
     session["projects_score"] = projects_score
-
     session["experience_score"] = experience_score
-
     session["education_score"] = education_score
-
     session["keywords_score"] = keywords_score
-
     session["required_skills"] = required_skills
 
     # -----------------------------------------------------
@@ -1982,16 +1932,11 @@ TARGET JOB DESCRIPTION:
 # PROFESSIONAL ONE-PAGE ATS PDF
 # =========================================================
 
-@app.route(
-    "/download-report"
-)
+@app.route("/download-report")
 def download_report():
 
     if "user_email" not in session:
-
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     buffer = io.BytesIO()
 
@@ -2823,5 +2768,5 @@ if __name__ == "__main__":
 
     app.run(
         debug=True,
-        port=5062
+        port=5064
     )
